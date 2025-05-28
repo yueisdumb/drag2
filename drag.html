@@ -562,7 +562,7 @@
                     name: "Laksa",
                     image: "Laksa.jpg",
                     ingredients: ["laksa leaf", "boiled egg", "beehoon", "Tau pok", "prawn"],
-                    description: "A spicy noodle soup with coconut curry broth, featuring laksa leaf, beehoon, cockles, prawns, and boiled egg."
+                    description: "A spicy noodle soup with coconut curry broth, featuring laksa leaf, beehoon, Tau pok, prawns, and boiled egg."
                 },
                 {
                     name: "Nasi Lemak",
@@ -664,8 +664,34 @@
                 const isLaksa = currentDish.name === "Laksa";
                 const numIncorrect = isLaksa ? 5 : 3;
 
+                // Randomly select incorrect ingredients
+                const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
+                const incorrectIngredients = shuffledOtherIngredients.slice(0, numIncorrect);
+                
+                // Combine correct and incorrect ingredients
+                const selectedIngredients = [...correctIngredients, ...incorrectIngredients];
+                
+                // Get full ingredient objects and randomize display order
+                const displayIngredients = selectedIngredients
+                    .map(name => allIngredients.find(ing => ing.name === name))
+                    .filter(ing => ing)
+                    .sort(() => Math.random() - 0.5);
+
                 const isNasiLemak = currentDish.name === "Nasi Lemak";
                 const numIncorrect = isNasiLemak ? 5 : 3;
+
+                // Randomly select incorrect ingredients
+                const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
+                const incorrectIngredients = shuffledOtherIngredients.slice(0, numIncorrect);
+                
+                // Combine correct and incorrect ingredients
+                const selectedIngredients = [...correctIngredients, ...incorrectIngredients];
+                
+                // Get full ingredient objects and randomize display order
+                const displayIngredients = selectedIngredients
+                    .map(name => allIngredients.find(ing => ing.name === name))
+                    .filter(ing => ing)
+                    .sort(() => Math.random() - 0.5);
 
                 const isMasalaThosai = currentDish.name === "Masala Thosai";
                 const numIncorrect = isMasalaThosai ? 3 : 5;
