@@ -12,6 +12,10 @@
             margin: 0;
             padding: 10px;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
         }
         
         h1 {
@@ -22,11 +26,14 @@
         
         .game-container {
             max-width: 100%;
-            margin: 0 auto;
+            width: 100%;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .game-info {
@@ -35,6 +42,7 @@
             background-color: #ffebee;
             border-radius: 5px;
             font-size: 14px;
+            width: 90%;
         }
         
         .target-dish {
@@ -56,13 +64,15 @@
         
         .ingredients-area {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-wrap: nowrap; /* Single row */
+            justify-content: center; /* Center horizontally */
             gap: 10px;
             margin-bottom: 20px;
             padding: 10px;
             background-color: #f8f8f8;
             border-radius: 8px;
+            width: 90%;
+            overflow-x: auto; /* Scroll if overflow */
         }
         
         .ingredient {
@@ -79,6 +89,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
             touch-action: none;
+            flex-shrink: 0; /* Prevent shrinking */
         }
         
         .ingredient:hover, .ingredient:active, .ingredient.touched {
@@ -163,7 +174,7 @@
         .bowl-list-container h3 {
             font-size: 14px;
             color: #8d6e63;
-            margin: 0 0 5px 0;
+            margin: 0 0 5px;
         }
         
         .bowl-list {
@@ -273,7 +284,7 @@
             background-color: white;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             z-index: 100;
             max-width: 90%;
             font-size: 14px;
@@ -633,7 +644,7 @@
             // DOM elements
             const ingredientsContainer = document.getElementById('ingredients');
             const bowl = document.getElementById('bowl');
-            const bowlIngredientsContainer = document.get YueById('bowl-ingredients');
+            const bowlIngredientsContainer = document.getElementById('bowl-ingredients');
             const bowlListElement = document.getElementById('bowl-list');
             const currentDishElement = document.getElementById('current-dish');
             const dishImageElement = document.getElementById('dish-image');
@@ -652,14 +663,29 @@
             const closePopupButton = document.getElementById('close-popup');
             const playAgainButton = document.getElementById('play-again');
             
+            // Validate data integrity
+            function validateData() {
+                singaporeFoods.forEach(dish => {
+                    dish.ingredients.forEach(ing => {
+                        if (!allIngredients.find(i => i.name === ing)) {
+                            console.error(`Ingredient "${ing}" in ${dish.name} not found in allIngredients`);
+                            resultElement.textContent = `Error: Ingredient "${ing}" missing for ${dish.name}. Check console.`;
+                            resultElement.className = 'result incorrect';
+                        }
+                    });
+                });
+            }
+            
             // Initialize the game
             function initGame() {
+                validateData();
                 updateTargetDish();
                 populateIngredients();
                 addEventListeners();
                 ingredientInfo.style.display = 'none';
                 // Fallback for dish images
                 dishImageElement.onerror = function() {
+                    console.warn(`Dish image failed to load: ${this.src}`);
                     this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#ccc"/><text x="10" y="60" font-size="14" fill="#000">No Image</text></svg>';
                     this.alt = 'Image not available';
                 };
@@ -678,15 +704,16 @@
             function populateIngredients() {
                 ingredientsContainer.innerHTML = '';
                 const currentDish = singaporeFoods[currentDishIndex];
-                const correctIngredients = currentDishIngredients;
+                const correctIngredients = currentDish.ingredients;
                 
                 // Get incorrect ingredients from other dishes
                 let otherIngredients = [];
                 singaporeFoods.forEach((dish, index) => {
                     if (index !== currentDishIndex) {
-                        dishIngredients.forEach(ing => {
-                            if (!correctIngredients.includes(ing && !otherIngredients.includes(ing)) {
+                        dish.ingredients.forEach(ing => {
+                            if (!correctIngredients.includes(ing) && !otherIngredients.includes(ing)) {
                                 otherIngredients.push(ing);
+                            }
                         });
                     }
                 });
@@ -695,7 +722,7 @@
                 let numIncorrect;
                 if (currentDish.name === "Laksa") {
                     numIncorrect = 3; // 5 correct + 3 incorrect = 8 total
- total } else if (currentDish.name === "Nasi Lemak") {
+                } else if (currentDish.name === "Nasi Lemak") {
                     numIncorrect = 3; // 5 correct + 3 incorrect = 8 total
                 } else if (currentDish.name === "Masala Thosai") {
                     numIncorrect = 5; // 3 correct + 5 incorrect = 8 total
@@ -716,17 +743,22 @@
                 
                 // Validate that we have enough ingredients
                 if (displayIngredients.length < correctIngredients.length) {
-                    console.warn(`Warning: Not enough ingredients for ${currentDish.name}`);
+                    console.error(`Not enough ingredients for ${currentDish.name}. Expected at least ${correctIngredients.length}, got ${displayIngredients.length}`);
+                    resultElement.textContent = `Error: Missing ingredients for ${currentDish.name}. Check console for details.`;
+                    resultElement.className = 'result incorrect';
                     return;
                 }
                 
+                // Log for debugging
+                console.log(`Populating ${displayIngredients.length} ingredients for ${currentDish.name}:`, displayIngredients.map(ing => ing.name));
+                
                 // Populate ingredients area
-                displayIngredients.forEach(function(ingredient) {
+                displayIngredients.forEach(ingredient => {
                     const ingredientElement = document.createElement('div');
                     ingredientElement.className = 'ingredient';
                     ingredientElement.setAttribute('data-name', ingredient.name);
                     ingredientElement.draggable = true;
-                    ingredientElement.setAttribute('tabindex', '0'); // Accessibility
+                    ingredientElement.setAttribute('tabindex', '0');
                     ingredientElement.setAttribute('role', 'button');
                     ingredientElement.setAttribute('aria-label', `Add ${ingredient.name} to bowl`);
                     
@@ -734,6 +766,7 @@
                     imgElement.src = ingredient.image;
                     imgElement.alt = ingredient.name;
                     imgElement.onerror = function() {
+                        console.warn(`Image failed to load for ${ingredient.name}: ${ingredient.image}`);
                         this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="#ccc"/><text x="10" y="30" font-size="12" fill="#000">No Image</text></svg>';
                         this.alt = 'Ingredient image not available';
                     };
@@ -791,7 +824,7 @@
                     infoButton.addEventListener('click', function(e) {
                         clearTimeout(clickTimeout);
                         clickTimeout = setTimeout(() => {
-                            showIngredientInfo(e, ingredient);
+                            showIngredientInfo(e);
                             e.stopPropagation();
                         }, 100);
                     });
@@ -890,6 +923,7 @@
                             imgElement.setAttribute('data-index', index);
                             imgElement.draggable = true;
                             imgElement.onerror = function() {
+                                console.warn(`Bowl image failed to load for ${ingredient.name}: ${ingredient.image}`);
                                 this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><rect width="30" height="30" fill="#ccc"/><text x="5" y="20" font-size="10" fill="#000">No Image</text></svg>';
                                 this.alt = 'Ingredient image not available';
                             };
@@ -907,7 +941,6 @@
                             
                             imgElement.addEventListener('touchmove', function(e) {
                                 e.preventDefault();
-                                imgElement.classList.add('touched');
                             });
                             
                             imgElement.addEventListener('touchend', function(e) {
@@ -973,7 +1006,6 @@
                     if (score >= 30) {
                         showGameEndPopup();
                     } else {
-                        // Automatically move to next dish after 2 seconds
                         setTimeout(() => {
                             nextDish();
                         }, 2000);
@@ -1030,49 +1062,45 @@
                 const currentDish = singaporeFoods[currentDishIndex];
                 const requiredIngredients = currentDish.ingredients;
                 
-                // Get currently displayed ingredients
                 const displayedIngredients = Array.from(document.querySelectorAll('.ingredient')).map(el => el.getAttribute('data-name'));
                 
-                // Filter required ingredients that are currently displayed and not in bowl
                 const availableRequiredIngredients = requiredIngredients.filter(ing => displayedIngredients.includes(ing) && !bowlIngredients.includes(ing));
                 
                 removeAllHighlights();
                 
-                const numHints = Math.min(Math.floor(Math.random() * 2) + 1, availableRequiredIngredients.length || requiredIngredients.length);
+                const numHints = Math.min(Math.floor(Math.random() * 2) + 2, availableRequiredIngredients.length || requiredIngredients.length);
                 const shuffledIngredients = availableRequiredIngredients.length > 0 ? availableRequiredIngredients : requiredIngredients;
-                const hintsToShow = shuffledIngredients.sort(() => Math.random() - 0.5).slice(0, numHints);
+                const hintToShow = shuffledIngredients.sort(() => Math.random() - 0.5).slice(0, numHints);
                 
-                hintDisplayElement.textContent = `Hint: This dish contains ${hintsToShow.join(', ')}${numHints < requiredIngredients.length ? ' and other ingredients' : ''}.`;
+                hintDisplayElement.textContent = `Hint: This dish contains ${hintToShow.join(', ')} ${numHints < requiredIngredients.length ? ' and other ingredients' : ''}.`;
                 
-                hintsToShow.forEach(ingredientName => {
-                    const ingredientElements = document.querySelectorAll(`.ingredient[data-name="${ingredientName}"]`);
+                hintToShow.forEach(ingredient => {
+                    const ingredientElements = document.querySelectorAll(`.ingredient[data-name="${ingredientName}"`);
                     ingredientElements.forEach(el => {
                         el.classList.add('hint-highlight');
                     });
                 });
                 
-                setTimeout(removeAllHighlights, 3000);
+                setTimeout(removeAllHighlights, 5000);
             }
             
-            // Remove all hint highlights
+            // Remove all highlight hints
             function removeAllHighlights() {
                 document.querySelectorAll('.hint-highlight').forEach(el => {
                     el.classList.remove('hint-highlight');
                 });
             }
             
-            // Show ingredient information
-            function showIngredientInfo(e, ingredient) {
-                if (!ingredient) {
-                    const ingredientElement = e.target.closest('.ingredient');
-                    if (!ingredientElement) return;
-                    
-                    const ingredientName = ingredientElement.getAttribute('data-name');
-                    ingredient = allIngredients.find(ing => ing.name === ingredientName);
-                }
+            // Show information ingredient
+            function showIngredientInfo(e) {
+                const ingredientElement = e.target.closest('.ingredient');
+                if (!ingredientElement) return;
+                
+                const ingredientName = ingredientElement.getAttribute('data-name');
+                const ingredient = allIngredients.find(ing => ing.name === ingredientName);
                 
                 if (ingredient && ingredient.name && ingredient.description) {
-                    infoName.textContent = ingredient.name;
+                    infoName.innerHTML = ingredient.name;
                     infoDescription.textContent = ingredient.description;
                     ingredientInfo.style.display = 'block';
                 }
