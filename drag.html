@@ -615,8 +615,8 @@
                 {
                     name: "Masala Thosai",
                     image: "MasalaThosai.jpg",
-                    ingredients: ["potato filling", "chutney", "sambar"],
-                    description: "A crispy South Indian crepe filled with spiced potato, served with chutney and sambar."
+                    ingredients: ["potato filling", "chutney", "sambar", "curry"],
+                    description: "A crispy South Indian crepe filled with spiced potato filling, served with chutney, curry and sambar."
                 }
             ];
             
@@ -633,7 +633,8 @@
                 { name: "rice", image: "Rice.jpg", description: "Fragrant rice." },
                 { name: "potato filling", image: "Potato.jpg", description: "Spiced mashed potato filling." },
                 { name: "chutney", image: "Chutney.jpg", description: "Flavorful condiment." },
-                { name: "sambar", image: "Sambar.jpg", description: "Lentil-based stew, a staple side." }
+                { name: "sambar", image: "Sambar.jpg", description: "Lentil-based stew, a staple side." },
+                { name: "curry", image: "Curry.jpg", description: "Rich, spicy and flavorful." }
             ];
             
             // Game variables
@@ -725,7 +726,7 @@
                 } else if (currentDish.name === "Nasi Lemak") {
                     numIncorrect = 3; // 5 correct + 3 incorrect = 8 total
                 } else if (currentDish.name === "Masala Thosai") {
-                    numIncorrect = 5; // 3 correct + 5 incorrect = 8 total
+                    numIncorrect = 4; // 4 correct + 4 incorrect = 8 total
                 }
                 
                 // Randomly select incorrect ingredients
