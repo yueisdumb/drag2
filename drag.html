@@ -561,7 +561,7 @@
                 {
                     name: "Laksa",
                     image: "Laksa.jpg",
-                    ingredients: ["laksa leaf", "boiled egg", "beehoon", "cockle", "prawn"],
+                    ingredients: ["laksa leaf", "boiled egg", "beehoon", "Tau pok", "prawn"],
                     description: "A spicy noodle soup with coconut curry broth, featuring laksa leaf, beehoon, cockles, prawns, and boiled egg."
                 },
                 {
@@ -661,8 +661,14 @@
                 });
                 
                 // Determine number of incorrect ingredients based on dish
+                const isLaksa = currentDish.name === "Laksa";
+                const numIncorrect = isLaksa ? 5 : 3;
+
+                const isNasiLemak = currentDish.name === "Nasi Lemak";
+                const numIncorrect = isNasiLemak ? 5 : 3;
+
                 const isMasalaThosai = currentDish.name === "Masala Thosai";
-                const numIncorrect = isMasalaThosai ? 5 : 3;
+                const numIncorrect = isMasalaThosai ? 3 : 5;
                 
                 // Randomly select incorrect ingredients
                 const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
