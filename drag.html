@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -354,6 +355,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 5px;
         }
 
         .game-end-popup button:hover {
@@ -501,6 +503,34 @@
                 font-size: 14px;
             }
         }
+
+        @media (max-width: 400px) {
+            .game-container {
+                padding: 5px;
+            }
+            .target-dish-img {
+                width: 80px;
+                height: 80px;
+            }
+            .ingredient {
+                width: 40px;
+                height: 40px;
+            }
+            .ingredient img {
+                width: 32px;
+                height: 32px;
+            }
+            .bowl {
+                width: 100px;
+                height: 100px;
+            }
+            .bowl-ingredients {
+                width: 80px;
+                height: 80px;
+                top: 10px;
+                left: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -551,6 +581,7 @@
     <div class="game-end-popup" id="game-end-popup">
         <h2>Congrats you finished the game! 🎉</h2>
         <img src="cheeringcat.gif" alt="Cheering Cat">
+        <button id="play-again">Play Again</button>
         <button id="close-popup">Close</button>
     </div>
 
@@ -573,7 +604,7 @@
                 {
                     name: "Masala Thosai",
                     image: "MasalaThosai.jpg",
-                    ingredients: ["potato", "chutney", "sambar"],
+                    ingredients: ["potato filling", "chutney", "sambar"],
                     description: "A crispy South Indian crepe filled with spiced potato, served with chutney and sambar."
                 }
             ];
@@ -602,7 +633,7 @@
             // DOM elements
             const ingredientsContainer = document.getElementById('ingredients');
             const bowl = document.getElementById('bowl');
-            const bowlIngredientsContainer = document.getElementById('bowl-ingredients');
+            const bowlIngredientsContainer = document.get YueById('bowl-ingredients');
             const bowlListElement = document.getElementById('bowl-list');
             const currentDishElement = document.getElementById('current-dish');
             const dishImageElement = document.getElementById('dish-image');
@@ -619,6 +650,7 @@
             const gameEndOverlay = document.getElementById('game-end-overlay');
             const gameEndPopup = document.getElementById('game-end-popup');
             const closePopupButton = document.getElementById('close-popup');
+            const playAgainButton = document.getElementById('play-again');
             
             // Initialize the game
             function initGame() {
@@ -628,7 +660,7 @@
                 ingredientInfo.style.display = 'none';
                 // Fallback for dish images
                 dishImageElement.onerror = function() {
-                    this.src = 'placeholder.jpg';
+                    this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#ccc"/><text x="10" y="60" font-size="14" fill="#000">No Image</text></svg>';
                     this.alt = 'Image not available';
                 };
             }
@@ -646,55 +678,28 @@
             function populateIngredients() {
                 ingredientsContainer.innerHTML = '';
                 const currentDish = singaporeFoods[currentDishIndex];
-                const correctIngredients = currentDish.ingredients;
+                const correctIngredients = currentDishIngredients;
                 
                 // Get incorrect ingredients from other dishes
                 let otherIngredients = [];
                 singaporeFoods.forEach((dish, index) => {
                     if (index !== currentDishIndex) {
-                        dish.ingredients.forEach(ing => {
-                            if (!correctIngredients.includes(ing) && !otherIngredients.includes(ing)) {
+                        dishIngredients.forEach(ing => {
+                            if (!correctIngredients.includes(ing && !otherIngredients.includes(ing)) {
                                 otherIngredients.push(ing);
-                            }
                         });
                     }
                 });
                 
                 // Determine number of incorrect ingredients based on dish
-                const isLaksa = currentDish.name === "Laksa";
-                const numIncorrect = isLaksa ? 5 : 3;
-
-                // Randomly select incorrect ingredients
-                const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
-                const incorrectIngredients = shuffledOtherIngredients.slice(0, numIncorrect);
-                
-                // Combine correct and incorrect ingredients
-                const selectedIngredients = [...correctIngredients, ...incorrectIngredients];
-                
-                // Get full ingredient objects and randomize display order
-                const displayIngredients = selectedIngredients
-                    .map(name => allIngredients.find(ing => ing.name === name))
-                    .filter(ing => ing)
-                    .sort(() => Math.random() - 0.5);
-
-                const isNasiLemak = currentDish.name === "Nasi Lemak";
-                const numIncorrect = isNasiLemak ? 5 : 3;
-
-                // Randomly select incorrect ingredients
-                const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
-                const incorrectIngredients = shuffledOtherIngredients.slice(0, numIncorrect);
-                
-                // Combine correct and incorrect ingredients
-                const selectedIngredients = [...correctIngredients, ...incorrectIngredients];
-                
-                // Get full ingredient objects and randomize display order
-                const displayIngredients = selectedIngredients
-                    .map(name => allIngredients.find(ing => ing.name === name))
-                    .filter(ing => ing)
-                    .sort(() => Math.random() - 0.5);
-
-                const isMasalaThosai = currentDish.name === "Masala Thosai";
-                const numIncorrect = isMasalaThosai ? 3 : 5;
+                let numIncorrect;
+                if (currentDish.name === "Laksa") {
+                    numIncorrect = 3; // 5 correct + 3 incorrect = 8 total
+ total } else if (currentDish.name === "Nasi Lemak") {
+                    numIncorrect = 5; // 5 correct + 5 incorrect = 10 total
+                } else if (currentDish.name === "Masala Thosai") {
+                    numIncorrect = 3; // 3 correct + 3 incorrect = 6 total
+                }
                 
                 // Randomly select incorrect ingredients
                 const shuffledOtherIngredients = otherIngredients.sort(() => Math.random() - 0.5);
@@ -708,19 +713,28 @@
                     .map(name => allIngredients.find(ing => ing.name === name))
                     .filter(ing => ing)
                     .sort(() => Math.random() - 0.5);
+                
+                // Validate that we have enough ingredients
+                if (displayIngredients.length < correctIngredients.length) {
+                    console.warn(`Warning: Not enough ingredients for ${currentDish.name}`);
+                    return;
+                }
                 
                 // Populate ingredients area
-                displayIngredients.forEach(ingredient => {
+                displayIngredients.forEach(function(ingredient) {
                     const ingredientElement = document.createElement('div');
                     ingredientElement.className = 'ingredient';
                     ingredientElement.setAttribute('data-name', ingredient.name);
                     ingredientElement.draggable = true;
+                    ingredientElement.setAttribute('tabindex', '0'); // Accessibility
+                    ingredientElement.setAttribute('role', 'button');
+                    ingredientElement.setAttribute('aria-label', `Add ${ingredient.name} to bowl`);
                     
                     const imgElement = document.createElement('img');
                     imgElement.src = ingredient.image;
                     imgElement.alt = ingredient.name;
                     imgElement.onerror = function() {
-                        this.src = 'placeholder.jpg'; // Fallback image
+                        this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="#ccc"/><text x="10" y="30" font-size="12" fill="#000">No Image</text></svg>';
                         this.alt = 'Ingredient image not available';
                     };
                     
@@ -744,21 +758,32 @@
                     });
                     
                     // Touch event listeners
+                    let isTouched = false;
                     ingredientElement.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        ingredientElement.classList.add('touched');
-                        ingredientElement._touchData = { name: ingredient.name };
+                        if (!isTouched) {
+                            e.preventDefault();
+                            isTouched = true;
+                            ingredientElement.classList.add('touched');
+                            ingredientElement._touchData = { name: ingredient.name };
+                        }
                     });
                     
                     ingredientElement.addEventListener('touchmove', function(e) {
                         e.preventDefault();
-                        ingredientElement.classList.add('touched');
                     });
                     
                     ingredientElement.addEventListener('touchend', function(e) {
                         e.preventDefault();
+                        isTouched = false;
                         ingredientElement.classList.remove('touched');
                         handleTouchDrop(e, ingredientElement._touchData.name);
+                    });
+                    
+                    // Keyboard support
+                    ingredientElement.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            addIngredientToBowl(ingredient.name);
+                        }
                     });
                     
                     // Info button event listener with debounce
@@ -794,6 +819,13 @@
                     gameEndPopup.style.display = 'none';
                     resetGame();
                 });
+
+                // Play again event
+                playAgainButton.addEventListener('click', function() {
+                    gameEndOverlay.style.display = 'none';
+                    gameEndPopup.style.display = 'none';
+                    resetGame();
+                });
             }
             
             // Drag and drop functions
@@ -820,12 +852,19 @@
             
             // Add ingredient to bowl
             function addIngredientToBowl(ingredientName) {
-                if (!bowlIngredients.includes(ingredientName)) {
-                    bowlIngredients.push(ingredientName);
-                    updateBowlDisplay();
-                    resultElement.textContent = '';
-                    resultElement.className = 'result';
+                if (bowlIngredients.includes(ingredientName)) {
+                    resultElement.textContent = `${ingredientName} is already in the bowl!`;
+                    resultElement.className = 'result incorrect';
+                    setTimeout(() => {
+                        resultElement.textContent = '';
+                        resultElement.className = 'result';
+                    }, 2000);
+                    return;
                 }
+                bowlIngredients.push(ingredientName);
+                updateBowlDisplay();
+                resultElement.textContent = '';
+                resultElement.className = 'result';
             }
             
             // Update the display of ingredients in the bowl
@@ -851,7 +890,7 @@
                             imgElement.setAttribute('data-index', index);
                             imgElement.draggable = true;
                             imgElement.onerror = function() {
-                                this.src = 'placeholder.jpg';
+                                this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><rect width="30" height="30" fill="#ccc"/><text x="5" y="20" font-size="10" fill="#000">No Image</text></svg>';
                                 this.alt = 'Ingredient image not available';
                             };
                             
@@ -994,14 +1033,14 @@
                 // Get currently displayed ingredients
                 const displayedIngredients = Array.from(document.querySelectorAll('.ingredient')).map(el => el.getAttribute('data-name'));
                 
-                // Filter required ingredients that are currently displayed
-                const availableRequiredIngredients = requiredIngredients.filter(ing => displayedIngredients.includes(ing));
+                // Filter required ingredients that are currently displayed and not in bowl
+                const availableRequiredIngredients = requiredIngredients.filter(ing => displayedIngredients.includes(ing) && !bowlIngredients.includes(ing));
                 
                 removeAllHighlights();
                 
-                const numHints = Math.min(Math.floor(Math.random() * 2) + 1, availableRequiredIngredients.length);
-                const shuffledIngredients = [...availableRequiredIngredients].sort(() => Math.random() - 0.5);
-                const hintsToShow = shuffledIngredients.slice(0, numHints);
+                const numHints = Math.min(Math.floor(Math.random() * 2) + 1, availableRequiredIngredients.length || requiredIngredients.length);
+                const shuffledIngredients = availableRequiredIngredients.length > 0 ? availableRequiredIngredients : requiredIngredients;
+                const hintsToShow = shuffledIngredients.sort(() => Math.random() - 0.5).slice(0, numHints);
                 
                 hintDisplayElement.textContent = `Hint: This dish contains ${hintsToShow.join(', ')}${numHints < requiredIngredients.length ? ' and other ingredients' : ''}.`;
                 
